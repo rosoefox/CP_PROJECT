@@ -26,3 +26,12 @@ npm run preview  # 빌드 결과 미리보기
    cp .env.example .env
    ```
 3. `.env`는 `.gitignore`에 포함되어 저장소에 올라가지 않습니다.
+
+## 테스트
+```bash
+npm test             # 전체 테스트 1회 실행
+npm run test:watch   # 변경 감지 모드
+```
+
+## CI
+`main` 브랜치 push 및 PR마다 GitHub Actions가 `npm ci → npm test → npm run build`를 실행합니다. (`.github/workflows/ci.yml`)
