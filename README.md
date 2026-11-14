@@ -18,3 +18,11 @@ npm run dev      # 로컬 개발 서버 실행
 npm run build    # 프로덕션 빌드 (dist/)
 npm run preview  # 빌드 결과 미리보기
 ```
+
+## Firebase 설정
+1. Firebase 콘솔에서 프로젝트와 웹 앱을 만듭니다.
+2. `.env.example`을 복사해 `.env` 파일을 만들고 설정값을 채웁니다.
+   ```bash
+   cp .env.example .env
+   ```
+3. `.env`는 `.gitignore`에 포함되어 저장소에 올라가지 않습니다.
