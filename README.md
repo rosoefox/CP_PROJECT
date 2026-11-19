@@ -35,3 +35,15 @@ npm run test:watch   # 변경 감지 모드
 
 ## CI
 `main` 브랜치 push 및 PR마다 GitHub Actions가 `npm ci → npm test → npm run build`를 실행합니다. (`.github/workflows/ci.yml`)
+
+## Firestore Security Rules
+접근 규칙은 [`firestore.rules`](firestore.rules)에서 관리합니다.
+
+- 기본 정책: 명시적으로 허용하지 않은 경로는 모두 거부
+- `users/{uid}`: 로그인한 본인만 읽기·쓰기
+
+배포(Firebase CLI 필요):
+```bash
+npx firebase-tools login
+npx firebase-tools deploy --only firestore:rules --project <프로젝트 ID>
+```

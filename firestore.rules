@@ -1,0 +1,28 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── 공통 함수 ──────────────────────────────
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    // ── 사용자 프로필 ──────────────────────────
+    // users/{uid}: 본인만 읽기·쓰기 가능
+    match /users/{uid} {
+      allow read, write: if isOwner(uid);
+    }
+
+    // ── 기본 정책 ──────────────────────────────
+    // 위에서 명시적으로 허용하지 않은 모든 경로는 거부합니다.
+    // 새 컬렉션을 추가할 때마다 이 파일에 규칙을 함께 추가합니다.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
