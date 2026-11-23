@@ -56,3 +56,50 @@ body {
 .app-main {
   padding: 24px 0;
 }
+
+/* ── 헤더·내비게이션 ───────────────────── */
+.brand {
+  font-size: 1.25rem;
+}
+
+.nav {
+  display: flex;
+  gap: 4px;
+}
+
+.nav-link {
+  padding: 6px 12px;
+  border-radius: 6px;
+  color: var(--color-muted);
+  text-decoration: none;
+}
+
+.nav-link:hover {
+  color: var(--color-text);
+}
+
+.nav-link.active {
+  color: var(--color-primary);
+  background: color-mix(in srgb, var(--color-primary) 12%, transparent);
+  font-weight: 600;
+}
+
+/* ── 공통 ───────────────────────────── */
+h2 {
+  margin: 0 0 16px;
+  font-size: 1.375rem;
+}
+
+.muted {
+  color: var(--color-muted);
+}
+
+.empty {
+  padding: 48px 16px;
+  text-align: center;
+  color: var(--color-muted);
+}
+
+a {
+  color: var(--color-primary);
+}
