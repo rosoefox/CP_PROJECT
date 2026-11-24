@@ -1,13 +1,20 @@
+import { Route, Routes } from 'react-router-dom';
+import Layout from './components/Layout';
+import DashboardPage from './pages/DashboardPage';
+import AnimalListPage from './pages/AnimalListPage';
+import AnimalDetailPage from './pages/AnimalDetailPage';
+import NotFoundPage from './pages/NotFoundPage';
+
 function App() {
   return (
-    <div className="app">
-      <header className="app-header">
-        <h1>CP_PROJECT</h1>
-      </header>
-      <main className="app-main">
-        <p>서비스 준비 중입니다.</p>
-      </main>
-    </div>
+    <Routes>
+      <Route element={<Layout />}>
+        <Route index element={<DashboardPage />} />
+        <Route path="animals" element={<AnimalListPage />} />
+        <Route path="animals/:animalId" element={<AnimalDetailPage />} />
+        <Route path="*" element={<NotFoundPage />} />
+      </Route>
+    </Routes>
   );
 }
 
