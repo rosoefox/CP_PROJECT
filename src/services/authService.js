@@ -7,6 +7,7 @@ import {
 } from 'firebase/auth';
 import { auth } from '../lib/firebase';
 import { toAuthErrorMessage } from './authErrors';
+import { userRepository } from '../repositories/userRepository';
 
 // 화면 컴포넌트가 Firebase Auth API를 직접 다루지 않도록
 // 회원가입·로그인·로그아웃·상태 구독을 하나의 인터페이스로 제공합니다.
@@ -29,6 +30,7 @@ export const authService = {
       if (displayName) {
         await updateProfile(user, { displayName });
       }
+      await userRepository.createProfile({ uid: user.uid, email: user.email, displayName: displayName ?? '' });
       return user;
     });
   },
