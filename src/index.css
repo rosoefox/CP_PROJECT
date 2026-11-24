@@ -453,3 +453,45 @@ a.chip:hover {
   padding-left: 20px;
   font-size: 0.9rem;
 }
+
+/* ── 로그인 ─────────────────────────── */
+.auth-page {
+  display: flex;
+  justify-content: center;
+  padding: 48px 0;
+}
+
+.auth-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 380px;
+}
+
+.auth-card h2 {
+  margin: 0;
+}
+
+.auth-card > p {
+  margin: 0 0 8px;
+}
+
+.btn-block {
+  width: 100%;
+  margin-top: 4px;
+}
+
+.btn-link {
+  padding: 4px;
+  border: none;
+  background: none;
+  color: var(--color-primary);
+  font: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.btn-link:hover {
+  text-decoration: underline;
+}
