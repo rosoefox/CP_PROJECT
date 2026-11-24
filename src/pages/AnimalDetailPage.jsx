@@ -22,7 +22,7 @@ function AnimalDetailPage() {
         setAnimal(foundAnimal);
         setRecords(foundRecords);
       })
-      .catch(() => setError('개체 정보를 불러오지 못했습니다.'))
+      .catch((e) => setError(`개체 정보를 불러오지 못했습니다. ${e.message}`))
       .finally(() => setLoading(false));
   }, [animalId]);
 

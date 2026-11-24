@@ -18,7 +18,7 @@ function AnimalListPage() {
     animalRepository
       .list()
       .then(setAnimals)
-      .catch(() => setError('개체 목록을 불러오지 못했습니다.'))
+      .catch((e) => setError(`개체 목록을 불러오지 못했습니다. ${e.message}`))
       .finally(() => setLoading(false));
   }, []);
 
