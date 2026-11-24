@@ -13,7 +13,7 @@ function DashboardPage() {
   useEffect(() => {
     Promise.all([animalRepository.list(), recordRepository.listAll()])
       .then(([animals, records]) => setSummary(buildDashboard(animals, records, todayString())))
-      .catch(() => setError('현황을 불러오지 못했습니다.'));
+      .catch((e) => setError(`현황을 불러오지 못했습니다. ${e.message}`));
   }, []);
 
   if (error) return <p className="alert alert-danger">{error}</p>;

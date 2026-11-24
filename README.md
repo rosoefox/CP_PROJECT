@@ -39,11 +39,25 @@ npm run test:watch   # 변경 감지 모드
 ## Firestore Security Rules
 접근 규칙은 [`firestore.rules`](firestore.rules)에서 관리합니다.
 
-- 기본 정책: 명시적으로 허용하지 않은 경로는 모두 거부
-- `users/{uid}`: 로그인한 본인만 읽기·쓰기
+### 데이터 구조
+| 컬렉션 | 주요 필드 | 문서 ID |
+|---|---|---|
+| `users` | uid, email, displayName, createdAt | 사용자 UID |
+| `animals` | ownerId, tagNumber, name, species, sex, birthDate, status, createdAt, updatedAt | 자동 생성 |
+| `healthRecords` | ownerId, animalId, date, temperature, feedKg, weightKg, note, createdAt | `{animalId}_{date}` |
 
-배포(Firebase CLI 필요):
-```bash
-npx firebase-tools login
-npx firebase-tools deploy --only firestore:rules --project <프로젝트 ID>
-```
+### 접근 권한
+| 데이터 | 조회 | 등록 | 수정 | 삭제 |
+|---|---|---|---|---|
+| `users/{uid}` | 본인 | 본인 | 본인 | 본인 |
+| `animals` | 본인 소유 | 본인 소유 + `active` 상태로만 | 본인 소유, 소유자·개체번호 변경 불가, 출하·폐사 후 불가, 허용된 상태 전이만 | 불가 (이력 보존) |
+| `healthRecords` | 본인 소유 | 본인 개체 + 출하·폐사 아님 + 같은 날짜 중복 불가 | 불가 | 불가 |
+| 그 외 경로 | 불가 | 불가 | 불가 | 불가 |
+
+### 규칙 적용
+- **콘솔:** Firebase 콘솔 → Firestore Database → 규칙 탭에 `firestore.rules` 내용을 붙여넣고 게시
+- **CLI:** (프로젝트 ID는 `.firebaserc`에 지정)
+  ```bash
+  npx firebase-tools login
+  npx firebase-tools deploy --only firestore:rules
+  ```

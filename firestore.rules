@@ -12,15 +12,90 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == uid;
     }
 
+    // 쓰기 요청의 ownerId가 요청한 사용자 본인인지
+    function writesOwnData() {
+      return isSignedIn() && request.resource.data.ownerId == request.auth.uid;
+    }
+
+    function isTerminal(status) {
+      return status in ['shipped', 'dead'];
+    }
+
+    // 개체 상태 전이 규칙 (src/domain/animalStatus.js와 동일)
+    function validTransition(from, to) {
+      return from == to
+        || (from == 'active' && to in ['treatment', 'shipped', 'dead'])
+        || (from == 'treatment' && to in ['active', 'shipped', 'dead']);
+    }
+
+    function validAnimal(data) {
+      return data.tagNumber is string
+        && data.tagNumber.size() >= 1 && data.tagNumber.size() <= 20
+        && data.species in ['cattle', 'dairy', 'pig', 'poultry', 'goat', 'other']
+        && data.sex in ['M', 'F']
+        && data.birthDate is string
+        && data.name is string && data.name.size() <= 30
+        && data.status in ['active', 'treatment', 'shipped', 'dead'];
+    }
+
+    // 기록하려는 개체가 본인 소유이고 출하·폐사 상태가 아닌지
+    function ownsEditableAnimal(animalId) {
+      let animal = get(/databases/$(database)/documents/animals/$(animalId)).data;
+      return animal.ownerId == request.auth.uid && !isTerminal(animal.status);
+    }
+
+    function optionalNumber(data, field) {
+      return !(field in data) || data[field] == null || data[field] is number;
+    }
+
     // ── 사용자 프로필 ──────────────────────────
-    // users/{uid}: 본인만 읽기·쓰기 가능
+    // users/{uid}: 본인만 읽기·쓰기
     match /users/{uid} {
       allow read, write: if isOwner(uid);
     }
 
+    // ── 개체 ───────────────────────────────────
+    match /animals/{animalId} {
+      // 본인 개체만 조회 (존재하지 않는 문서 조회는 허용 → 화면에서 '없는 개체'로 안내)
+      allow read: if isSignedIn() && (resource == null || resource.data.ownerId == request.auth.uid);
+
+      // 등록: 본인 소유로, '사육 중' 상태로만 생성
+      allow create: if writesOwnData()
+        && request.resource.data.status == 'active'
+        && validAnimal(request.resource.data);
+
+      // 수정: 본인 개체, 소유자·개체번호 변경 금지,
+      //       출하·폐사 개체는 수정 불가, 상태는 허용된 전이만
+      allow update: if isOwner(resource.data.ownerId)
+        && request.resource.data.ownerId == resource.data.ownerId
+        && request.resource.data.tagNumber == resource.data.tagNumber
+        && !isTerminal(resource.data.status)
+        && validTransition(resource.data.status, request.resource.data.status)
+        && validAnimal(request.resource.data);
+
+      // 삭제 금지: 출하·폐사 이력을 보존하기 위해 상태 변경으로 대신합니다.
+      allow delete: if false;
+    }
+
+    // ── 건강 기록 ──────────────────────────────
+    match /healthRecords/{recordId} {
+      allow read: if isSignedIn() && (resource == null || resource.data.ownerId == request.auth.uid);
+
+      // 등록: 본인 소유, 문서 ID = 개체ID_날짜 (같은 날짜 중복 방지),
+      //       본인 개체이면서 출하·폐사 상태가 아닌 경우만
+      allow create: if writesOwnData()
+        && recordId == request.resource.data.animalId + '_' + request.resource.data.date
+        && ownsEditableAnimal(request.resource.data.animalId)
+        && optionalNumber(request.resource.data, 'temperature')
+        && optionalNumber(request.resource.data, 'feedKg')
+        && optionalNumber(request.resource.data, 'weightKg');
+
+      // 기록은 이력 데이터이므로 수정·삭제 금지
+      allow update, delete: if false;
+    }
+
     // ── 기본 정책 ──────────────────────────────
     // 위에서 명시적으로 허용하지 않은 모든 경로는 거부합니다.
-    // 새 컬렉션을 추가할 때마다 이 파일에 규칙을 함께 추가합니다.
     match /{document=**} {
       allow read, write: if false;
     }
