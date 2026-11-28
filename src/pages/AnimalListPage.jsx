@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import AnimalForm from '../components/AnimalForm';
 import StatusBadge from '../components/StatusBadge';
 import { animalRepository } from '../repositories/animalRepository';
-import { ANIMAL_STATUS } from '../domain/animalStatus';
+import { ANIMAL_STATES } from '../domain/animalState';
 import { getSpecies, SPECIES_OPTIONS } from '../domain/species';
 
 function AnimalListPage() {
@@ -68,9 +68,9 @@ function AnimalListPage() {
         </select>
         <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
           <option value="">전체 상태</option>
-          {Object.entries(ANIMAL_STATUS).map(([value, info]) => (
-            <option key={value} value={value}>
-              {info.label}
+          {ANIMAL_STATES.map((state) => (
+            <option key={state.key} value={state.key}>
+              {state.label}
             </option>
           ))}
         </select>

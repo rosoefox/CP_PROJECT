@@ -1,8 +1,8 @@
-import { getStatus } from '../domain/animalStatus';
+import { getAnimalState } from '../domain/animalState';
 
 function StatusBadge({ status }) {
-  const info = getStatus(status);
-  return <span className={`badge badge-${info.tone}`}>{info.label}</span>;
+  const state = getAnimalState(status);
+  return <span className={`badge badge-${state.tone}`}>{state.label}</span>;
 }
 
 export default StatusBadge;

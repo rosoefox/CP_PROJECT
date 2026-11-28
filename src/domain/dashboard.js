@@ -1,4 +1,4 @@
-import { isEditable } from './animalStatus';
+import { getAnimalState } from './animalState';
 import { detectAnomalies, highestLevel } from './anomaly';
 
 /**
@@ -15,7 +15,7 @@ export function buildDashboard(animals, records, today) {
     recordsByAnimal.set(record.animalId, list);
   }
 
-  const managed = animals.filter((animal) => isEditable(animal.status));
+  const managed = animals.filter((animal) => !getAnimalState(animal.status).isTerminal);
 
   const speciesCount = {};
   for (const animal of managed) {

@@ -4,7 +4,7 @@ import HealthRecordForm from '../components/HealthRecordForm';
 import StatusBadge from '../components/StatusBadge';
 import { animalRepository } from '../repositories/animalRepository';
 import { recordRepository } from '../repositories/recordRepository';
-import { canTransition, getStatus, isEditable } from '../domain/animalStatus';
+import { getAnimalState } from '../domain/animalState';
 import { getSpecies } from '../domain/species';
 import { detectAnomalies } from '../domain/anomaly';
 
@@ -38,23 +38,17 @@ function AnimalDetailPage() {
   }
 
   const species = getSpecies(animal.species);
-  const editable = isEditable(animal.status);
-  const nextStatuses = getStatus(animal.status).next;
+  const state = getAnimalState(animal.status);
 
   const handleStatusChange = async (event) => {
-    const next = event.target.value;
-    if (!next) return;
-    if (!canTransition(animal.status, next)) {
-      setStatusError('변경할 수 없는 상태입니다.');
-      return;
-    }
-    const label = getStatus(next).label;
-    if (getStatus(next).terminal && !window.confirm(`'${label}' 처리 후에는 상태 변경과 기록 추가가 불가능합니다. 계속할까요?`)) {
-      return;
-    }
+    const nextKey = event.target.value;
+    if (!nextKey) return;
     try {
       setStatusError('');
-      setAnimal(await animalRepository.update(animal.id, { status: next }));
+      const nextState = state.changeTo(nextKey); // 허용되지 않은 전이면 오류
+      const message = nextState.confirmMessage();
+      if (message && !window.confirm(message)) return;
+      setAnimal(await animalRepository.update(animal.id, { status: nextState.key }));
     } catch (e) {
       setStatusError(e.message);
     }
@@ -82,12 +76,12 @@ function AnimalDetailPage() {
         </div>
         <div className="detail-status">
           <StatusBadge status={animal.status} />
-          {nextStatuses.length > 0 && (
+          {state.allowedNext().length > 0 && (
             <select value="" onChange={handleStatusChange} aria-label="상태 변경">
               <option value="">상태 변경</option>
-              {nextStatuses.map((status) => (
-                <option key={status} value={status}>
-                  {getStatus(status).label}
+              {state.allowedNext().map((key) => (
+                <option key={key} value={key}>
+                  {getAnimalState(key).label}
                 </option>
               ))}
             </select>
@@ -96,14 +90,14 @@ function AnimalDetailPage() {
       </div>
       {statusError && <p className="alert alert-danger">{statusError}</p>}
 
-      {editable ? (
+      {state.canAddRecord() ? (
         <HealthRecordForm
           animal={animal}
           existingDates={records.map((record) => record.date)}
           onSubmit={handleCreateRecord}
         />
       ) : (
-        <p className="card muted">{getStatus(animal.status).label} 처리된 개체는 새 기록을 추가할 수 없습니다.</p>
+        <p className="card muted">{state.label} 처리된 개체는 새 기록을 추가할 수 없습니다.</p>
       )}
 
       <h3>건강 기록</h3>
