@@ -7,3 +7,8 @@ export function requireUid() {
   if (!uid) throw userError('로그인이 필요합니다.');
   return uid;
 }
+
+/** 캐시 구분용: 로그인한 사용자 UID, 없으면 빈 문자열 */
+export function currentUidOrEmpty() {
+  return auth.currentUser?.uid ?? '';
+}
