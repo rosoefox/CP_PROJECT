@@ -513,3 +513,56 @@ a.chip:hover {
 .btn-link:hover {
   text-decoration: underline;
 }
+
+/* ── 알림(토스트) ───────────────────── */
+.toast-stack {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: min(360px, calc(100vw - 32px));
+}
+
+.toast {
+  display: flex;
+  gap: 8px;
+  padding: 12px 14px;
+  border: 1px solid var(--color-border);
+  border-left: 4px solid #16a34a;
+  border-radius: 8px;
+  background: var(--color-bg);
+  box-shadow: 0 6px 20px rgb(0 0 0 / 0.15);
+  font-size: 0.9rem;
+}
+
+.toast-warn {
+  border-left-color: #d97706;
+}
+
+.toast-danger {
+  border-left-color: var(--color-danger);
+}
+
+.toast-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.toast-body ul {
+  margin: 4px 0;
+  padding-left: 18px;
+}
+
+.toast-close {
+  align-self: flex-start;
+  padding: 0 4px;
+  border: none;
+  background: none;
+  color: var(--color-muted);
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+}

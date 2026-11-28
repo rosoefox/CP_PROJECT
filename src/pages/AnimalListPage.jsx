@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import AnimalForm from '../components/AnimalForm';
 import StatusBadge from '../components/StatusBadge';
 import { animalRepository } from '../repositories/animalRepository';
+import { livestockService } from '../services';
 import { ANIMAL_STATES } from '../domain/animalState';
 import { getSpecies, SPECIES_OPTIONS } from '../domain/species';
 import { DEFAULT_SORT, getSortStrategy, SORT_STRATEGIES, sortAnimals } from '../domain/sortStrategies';
@@ -38,7 +39,7 @@ function AnimalListPage() {
   );
 
   const handleCreate = async (data) => {
-    const created = await animalRepository.create(data);
+    const created = await livestockService.registerAnimal(data);
     setAnimals((prev) => [created, ...prev]);
     setShowForm(false);
   };

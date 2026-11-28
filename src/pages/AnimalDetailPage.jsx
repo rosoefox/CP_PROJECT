@@ -4,6 +4,7 @@ import HealthRecordForm from '../components/HealthRecordForm';
 import StatusBadge from '../components/StatusBadge';
 import { animalRepository } from '../repositories/animalRepository';
 import { recordRepository } from '../repositories/recordRepository';
+import { livestockService } from '../services';
 import { getAnimalState } from '../domain/animalState';
 import { getSpecies } from '../domain/species';
 import { detectAnomalies } from '../domain/anomaly';
@@ -48,15 +49,16 @@ function AnimalDetailPage() {
       const nextState = state.changeTo(nextKey); // 허용되지 않은 전이면 오류
       const message = nextState.confirmMessage();
       if (message && !window.confirm(message)) return;
-      setAnimal(await animalRepository.update(animal.id, { status: nextState.key }));
+      setAnimal(await livestockService.changeStatus(animal, nextState.key));
     } catch (e) {
       setStatusError(e.message);
     }
   };
 
   const handleCreateRecord = async (data) => {
-    const created = await recordRepository.create(animal.id, data);
-    setRecords((prev) => [created, ...prev].sort((a, b) => b.date.localeCompare(a.date)));
+    // 저장·이상 징후 판정·알림 발행은 서비스가 처리
+    const { record } = await livestockService.addHealthRecord(animal, data, records);
+    setRecords((prev) => [record, ...prev].sort((a, b) => b.date.localeCompare(a.date)));
   };
 
   return (

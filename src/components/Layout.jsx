@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { authService } from '../services/authService';
+import NotificationCenter from './NotificationCenter';
 
 const NAV_ITEMS = [
   { to: '/', label: '대시보드', end: true },
@@ -56,6 +57,7 @@ function Layout() {
       <main className="app-main">
         <Outlet />
       </main>
+      {user && <NotificationCenter />}
     </div>
   );
 }
