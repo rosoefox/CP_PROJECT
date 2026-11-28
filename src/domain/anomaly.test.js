@@ -1,5 +1,13 @@
 import { describe, it, expect } from 'vitest';
-import { detectAnomalies, highestLevel } from './anomaly';
+import {
+  AnomalyDetector,
+  createAnomalyDetector,
+  detectAnomalies,
+  FeedDropRule,
+  highestLevel,
+  TemperatureRule,
+  WeightLossRule,
+} from './anomaly';
 
 const types = (alerts) => alerts.map((alert) => alert.type);
 
@@ -66,5 +74,32 @@ describe('highestLevel', () => {
     expect(highestLevel([])).toBe('ok');
     expect(highestLevel([{ level: 'warn' }])).toBe('warn');
     expect(highestLevel([{ level: 'warn' }, { level: 'danger' }])).toBe('danger');
+  });
+});
+
+describe('Factory 패턴 - 축종별 판정기 생성', () => {
+  const ruleTypes = (detector) => detector.rules.map((rule) => rule.constructor);
+
+  it('체온 기준이 있는 축종은 체온·사료·체중 규칙을 모두 조립', () => {
+    const detector = createAnomalyDetector('cattle');
+    expect(detector).toBeInstanceOf(AnomalyDetector);
+    expect(ruleTypes(detector)).toEqual([TemperatureRule, FeedDropRule, WeightLossRule]);
+  });
+
+  it('체온 기준이 없는 기타 축종은 체온 규칙을 제외', () => {
+    expect(ruleTypes(createAnomalyDetector('other'))).toEqual([FeedDropRule, WeightLossRule]);
+  });
+
+  it('축종 설정의 기준값을 규칙에 반영 (가금류 체중 감소 기준 10%)', () => {
+    const weightRule = createAnomalyDetector('poultry').rules.find((rule) => rule instanceof WeightLossRule);
+    expect(weightRule.ratio).toBe(0.1);
+    const history = [{ date: '2026-11-10', weightKg: 2.0 }];
+    // 7% 감소: 소 기준(5%)이면 경고, 가금류 기준(10%)이면 정상
+    expect(detectAnomalies({ date: '2026-11-20', weightKg: 1.86 }, history, 'cattle')).toHaveLength(1);
+    expect(detectAnomalies({ date: '2026-11-20', weightKg: 1.86 }, history, 'poultry')).toEqual([]);
+  });
+
+  it('같은 축종은 같은 판정기를 재사용', () => {
+    expect(createAnomalyDetector('pig')).toBe(createAnomalyDetector('pig'));
   });
 });
