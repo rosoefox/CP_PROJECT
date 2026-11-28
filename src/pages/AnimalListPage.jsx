@@ -5,6 +5,7 @@ import StatusBadge from '../components/StatusBadge';
 import { animalRepository } from '../repositories/animalRepository';
 import { ANIMAL_STATES } from '../domain/animalState';
 import { getSpecies, SPECIES_OPTIONS } from '../domain/species';
+import { DEFAULT_SORT, getSortStrategy, SORT_STRATEGIES, sortAnimals } from '../domain/sortStrategies';
 
 function AnimalListPage() {
   const [animals, setAnimals] = useState([]);
@@ -13,6 +14,7 @@ function AnimalListPage() {
   const [showForm, setShowForm] = useState(false);
   const [speciesFilter, setSpeciesFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  const [sortKey, setSortKey] = useState(DEFAULT_SORT.key);
 
   useEffect(() => {
     animalRepository
@@ -24,12 +26,15 @@ function AnimalListPage() {
 
   const filtered = useMemo(
     () =>
-      animals.filter(
-        (animal) =>
-          (!speciesFilter || animal.species === speciesFilter) &&
-          (!statusFilter || animal.status === statusFilter),
+      sortAnimals(
+        animals.filter(
+          (animal) =>
+            (!speciesFilter || animal.species === speciesFilter) &&
+            (!statusFilter || animal.status === statusFilter),
+        ),
+        getSortStrategy(sortKey),
       ),
-    [animals, speciesFilter, statusFilter],
+    [animals, speciesFilter, statusFilter, sortKey],
   );
 
   const handleCreate = async (data) => {
@@ -71,6 +76,13 @@ function AnimalListPage() {
           {ANIMAL_STATES.map((state) => (
             <option key={state.key} value={state.key}>
               {state.label}
+            </option>
+          ))}
+        </select>
+        <select value={sortKey} onChange={(e) => setSortKey(e.target.value)} aria-label="정렬">
+          {SORT_STRATEGIES.map((strategy) => (
+            <option key={strategy.key} value={strategy.key}>
+              {strategy.label}
             </option>
           ))}
         </select>
