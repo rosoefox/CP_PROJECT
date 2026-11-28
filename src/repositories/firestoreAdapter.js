@@ -1,5 +1,8 @@
-// Firestore 문서 ↔ 앱에서 쓰는 객체 변환을 담당합니다.
-// Firestore의 Timestamp를 ISO 문자열로 바꿔, 화면·도메인 코드가 Firestore 타입을 알 필요가 없게 합니다.
+// [Adapter 패턴] Firestore 문서 ↔ 앱에서 쓰는 객체 변환을 담당합니다.
+//   - Adaptee : Firestore DocumentSnapshot (snapshot.id, snapshot.data(), Timestamp 타입, 누락 필드)
+//   - Target  : 도메인 코드가 기대하는 평범한 객체 (id 포함, 날짜는 ISO 문자열, 측정값은 number|null)
+//   - Adapter : toAnimal / toHealthRecord / toIsoString
+// 화면·도메인 코드가 Firestore 타입을 알 필요가 없고, 저장소를 바꿔도 도메인 코드는 그대로입니다.
 
 /** Timestamp(toDate 보유) · Date · 문자열을 ISO 문자열로 변환합니다. 값이 없으면 fallback을 씁니다. */
 export function toIsoString(value, fallback = new Date().toISOString()) {

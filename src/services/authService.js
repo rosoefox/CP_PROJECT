@@ -9,9 +9,12 @@ import { auth } from '../lib/firebase';
 import { toAuthErrorMessage } from './authErrors';
 import { userRepository } from '../repositories/userRepository';
 
-// 화면 컴포넌트가 Firebase Auth API를 직접 다루지 않도록
-// 회원가입·로그인·로그아웃·상태 구독을 하나의 인터페이스로 제공합니다.
-// 실패 시 사용자에게 보여줄 메시지를 담은 Error를 던집니다.
+// [Facade 패턴] 인증 관련 하위 시스템을 하나의 단순한 인터페이스로 감쌉니다.
+//   - 하위 시스템: Firebase Auth API(계정 생성·로그인·프로필 수정·상태 구독),
+//                 사용자 프로필 저장소(userRepository), 오류 메시지 변환(authErrors)
+//   - Facade     : authService.signUp / signIn / signOut / subscribe
+//   예) signUp 한 번이 "계정 생성 → 이름 설정 → 프로필 문서 생성 → 실패 시 한국어 메시지"를 처리합니다.
+//   화면은 Firebase Auth를 몰라도 되고, 인증 방식이 바뀌어도 이 파일만 수정합니다.
 
 async function run(action) {
   try {

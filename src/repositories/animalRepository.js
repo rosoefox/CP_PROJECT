@@ -17,7 +17,9 @@ import { toAnimal } from './firestoreAdapter';
 
 const animalsRef = collection(db, 'animals');
 
-// 개체 데이터 접근을 담당합니다. 화면은 Firestore API를 직접 호출하지 않습니다.
+// [Repository 패턴] 개체 데이터 접근을 담당합니다. 화면·서비스는 Firestore API를 직접 호출하지 않고
+// list / get / create / update 같은 컬렉션 형태의 인터페이스만 사용합니다.
+// (localStorage 구현 → Firestore 구현으로 교체할 때 화면 코드를 바꾸지 않았습니다.)
 // 모든 조회는 로그인한 사용자(ownerId)의 데이터로 한정하며, 최종 권한 검사는 Security Rules가 합니다.
 const firestoreAnimalRepository = {
   list() {

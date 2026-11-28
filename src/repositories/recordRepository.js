@@ -8,7 +8,7 @@ import { healthRecordId, toHealthRecord } from './firestoreAdapter';
 const recordsRef = collection(db, 'healthRecords');
 const byDateDesc = (a, b) => b.date.localeCompare(a.date);
 
-// 일일 건강 기록 데이터 접근을 담당합니다.
+// [Repository 패턴] 일일 건강 기록 데이터 접근을 담당합니다.
 // 기록은 수정·삭제하지 않는 이력 데이터로 다루며, 같은 개체·같은 날짜에는 하나만 저장됩니다.
 const firestoreRecordRepository = {
   listAll() {
